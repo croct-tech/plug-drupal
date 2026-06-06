@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Drupal\croct\Tests;
 
+use Croct\Plug\Symfony\DependencyInjection\Compiler\StoryblokIntegrationPass;
 use Drupal\Core\DependencyInjection\ContainerBuilder;
 use Drupal\Core\Site\Settings;
 use Drupal\croct\CroctServiceProvider;
@@ -30,5 +31,36 @@ final class CroctServiceProviderTest extends TestCase
 
         self::assertSame('app-123', $container->getParameter('croct.app_id'));
         self::assertSame('', $container->getParameter('croct.api_key'));
+    }
+
+    #[TestDox('Enables Storyblok by default and registers the decoration pass.')]
+    public function testEnablesStoryblokByDefault(): void
+    {
+        new Settings([]);
+
+        $container = new ContainerBuilder();
+
+        (new CroctServiceProvider())->register($container);
+
+        self::assertTrue($container->getParameter('croct.storyblok.enabled'));
+
+        $passes = \array_filter(
+            $container->getCompiler()->getPassConfig()->getPasses(),
+            static fn (object $pass): bool => $pass instanceof StoryblokIntegrationPass,
+        );
+
+        self::assertCount(1, $passes);
+    }
+
+    #[TestDox('Allows disabling the Storyblok integration through settings.')]
+    public function testAllowsDisablingStoryblok(): void
+    {
+        new Settings(['croct.storyblok.enabled' => false]);
+
+        $container = new ContainerBuilder();
+
+        (new CroctServiceProvider())->register($container);
+
+        self::assertFalse($container->getParameter('croct.storyblok.enabled'));
     }
 }

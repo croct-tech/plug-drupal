@@ -29,6 +29,11 @@ services:
     tags:
       - { name: kernel.reset, method: reset }
 
+  # The Plug facade exposed as a service so the Storyblok decorator (and any consumer) can depend on
+  # it. The factory wraps it in a VaryingResponseObserver.
+  Croct\Plug\Plug:
+    factory: ['@Croct\Plug\Symfony\CroctFactory', 'getPlug']
+
   # Writes the session cookies and marks personalized responses so caches vary per visitor.
   Croct\Plug\Symfony\EventListener\CroctResponseSubscriber:
     arguments:
