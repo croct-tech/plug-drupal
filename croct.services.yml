@@ -12,9 +12,13 @@ services:
     arguments:
       - '@language_manager'
 
-  # Request-scoped Plug facade. The trailing arguments keep the bundle defaults; the last one swaps
-  # in the Drupal locale resolver.
-  Croct\Plug\Symfony\CroctFactory:
+  # Logger channel for the Plug, so SDK warnings surface in Drupal's logs.
+  logger.channel.croct:
+    parent: logger.channel_base
+    arguments: ['croct']
+
+  # Request-scoped Plug facade.
+  Croct\Plug\Symfony\CroctManager:
     arguments:
       - '@request_stack'
       - '%croct.app_id%'
@@ -26,34 +30,30 @@ services:
       - true
       - 'none'
       - '@Drupal\croct\LanguageManagerLocaleResolver'
+      - null
+      - '@logger.channel.croct'
+      - 86400
+      - '@Drupal\croct\AccountIdentityResolver'
     tags:
       - { name: kernel.reset, method: reset }
 
   # The Plug facade exposed as a service so the Storyblok decorator (and any consumer) can depend on
   # it. The factory wraps it in a VaryingResponseObserver.
   Croct\Plug\Plug:
-    factory: ['@Croct\Plug\Symfony\CroctFactory', 'getPlug']
+    factory: ['@Croct\Plug\Symfony\CroctManager', 'getPlug']
 
   # Writes the session cookies and marks personalized responses so caches vary per visitor.
   Croct\Plug\Symfony\EventListener\CroctResponseSubscriber:
     arguments:
-      - '@Croct\Plug\Symfony\CroctFactory'
+      - '@Croct\Plug\Symfony\CroctManager'
       - '@Drupal\croct\CacheContextMarker'
-    tags:
-      - { name: event_subscriber }
-
-  # Keeps the visitor token in sync with the Drupal current user.
-  Croct\Plug\Symfony\EventListener\CroctIdentityListener:
-    arguments:
-      - '@Croct\Plug\Symfony\CroctFactory'
-      - '@Drupal\croct\AccountIdentityResolver'
     tags:
       - { name: event_subscriber }
 
   # Auto-injects the client-side bootstrap into HTML responses, pointing at the first-party path.
   Croct\Plug\Symfony\EventListener\CroctScriptSubscriber:
     arguments:
-      - '@Croct\Plug\Symfony\CroctFactory'
+      - '@Croct\Plug\Symfony\CroctManager'
       - '/_croct/plug.js'
       - 'head'
     tags:
