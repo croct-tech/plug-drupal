@@ -41,12 +41,12 @@
     },
     "repositories": [
         {
-            "type": "path",
-            "url": "../plug-php"
+            "type": "vcs",
+            "url": "https://github.com/croct-tech/plug-php"
         },
         {
-            "type": "path",
-            "url": "../symfony-bundle-php"
+            "type": "vcs",
+            "url": "https://github.com/croct-tech/symfony-bundle-php"
         }
     ],
     "prefer-stable": true,
@@ -68,6 +68,9 @@
             "ergebnis/composer-normalize": true,
             "php-http/discovery": true,
             "phpstan/extension-installer": true
+        },
+        "platform": {
+            "ext-gd": "2.1.0"
         }
     },
     "scripts": {
