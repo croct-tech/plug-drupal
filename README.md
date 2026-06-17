@@ -9,7 +9,7 @@
     </picture>
   </a>
   <br/>
-  <strong>Plug Drupal</strong><br/>
+  <strong>Croct Drupal Module</strong><br/>
   Bring dynamic, personalized content natively into your Drupal applications.
 </p>
 <div align="center">
@@ -33,19 +33,6 @@ Run this command to install the module:
 
 ```sh
 composer require croct/plug-drupal
-```
-
-Then enable the module with Drush:
-
-```sh
-drush en croct
-```
-
-Finally, set your credentials in `settings.php`:
-
-```php
-$settings['croct.app_id'] = '<APP_ID>';
-$settings['croct.api_key'] = '<API_KEY>';
 ```
 
 See our [quick start guide](https://docs.croct.com/reference/sdk/drupal/integration) for more details.
