@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Drupal\croct;
 
 use Croct\Plug\LocaleResolver;
-use Drupal\Core\Language\LanguageManagerInterface;
+use Drupal\Core\Language\LanguageManagerInterface as LanguageManager;
 
 /**
  * Resolves the locale from Drupal's negotiated current language.
@@ -15,9 +15,9 @@ use Drupal\Core\Language\LanguageManagerInterface;
  */
 final class LanguageManagerLocaleResolver implements LocaleResolver
 {
-    private LanguageManagerInterface $languageManager;
+    private LanguageManager $languageManager;
 
-    public function __construct(LanguageManagerInterface $languageManager)
+    public function __construct(LanguageManager $languageManager)
     {
         $this->languageManager = $languageManager;
     }

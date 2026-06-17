@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Drupal\croct\Tests;
 
+use Croct\Plug\CroctScript;
 use Croct\Plug\LoadMode;
 use Croct\Plug\Symfony\DependencyInjection\Compiler\StoryblokIntegrationPass;
 use Croct\Plug\Symfony\EventListener\CroctScriptSubscriber;
@@ -13,6 +14,7 @@ use Drupal\croct\CroctServiceProvider;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\DependencyInjection\Definition;
 
 #[CoversClass(CroctServiceProvider::class)]
 #[TestDox('The Drupal service provider')]
@@ -33,6 +35,30 @@ final class CroctServiceProviderTest extends TestCase
 
         self::assertSame('app-123', $container->getParameter('croct.app_id'));
         self::assertSame('', $container->getParameter('croct.api_key'));
+    }
+
+    #[TestDox('Defaults the loader URL to the CDN script.')]
+    public function testDefaultsScriptUrl(): void
+    {
+        new Settings([]);
+
+        $container = new ContainerBuilder();
+
+        (new CroctServiceProvider())->register($container);
+
+        self::assertSame(CroctScript::DEFAULT_SCRIPT_URL, $container->getParameter('croct.script.url'));
+    }
+
+    #[TestDox('Allows overriding the loader URL through settings.')]
+    public function testAllowsOverridingScriptUrl(): void
+    {
+        new Settings(['croct.script.url' => 'https://example.test/plug.js']);
+
+        $container = new ContainerBuilder();
+
+        (new CroctServiceProvider())->register($container);
+
+        self::assertSame('https://example.test/plug.js', $container->getParameter('croct.script.url'));
     }
 
     #[TestDox('Enables Storyblok by default and registers the decoration pass.')]
@@ -112,8 +138,19 @@ final class CroctServiceProviderTest extends TestCase
 
         $mode = $container->getDefinition(CroctScriptSubscriber::class)->getArguments()[3] ?? null;
 
-        self::assertInstanceOf(LoadMode::class, $mode);
+        // Drupal's container dumper rejects enum objects, so the mode is wired as an inline service
+        // built at runtime from the backed-enum value via the LoadMode::from factory.
+        self::assertInstanceOf(Definition::class, $mode);
+        self::assertSame([LoadMode::class, 'from'], $mode->getFactory());
 
-        return $mode;
+        $value = $mode->getArguments()[0] ?? null;
+
+        self::assertIsString($value);
+
+        $resolved = LoadMode::tryFrom($value);
+
+        self::assertNotNull($resolved);
+
+        return $resolved;
     }
 }

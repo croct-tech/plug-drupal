@@ -58,3 +58,27 @@ services:
       - 'head'
     tags:
       - { name: event_subscriber }
+
+  # First-party SDK loader: serve /_croct/plug.js from the site's own origin instead of the CDN, so
+  # the loader runs first-party (no third-party cookies). CroctScriptProvider proxies and caches the
+  # upstream loader; CroctScriptListener answers the request above the router, so it needs no route.
+  Nyholm\Psr7\Factory\Psr17Factory: {}
+
+  Drupal\croct\PsrCacheAdapter:
+    arguments:
+      - '@cache.default'
+      - '@datetime.time'
+
+  Croct\Plug\CroctScriptProvider:
+    arguments:
+      - '@http_client'
+      - '@Nyholm\Psr7\Factory\Psr17Factory'
+      - '@Drupal\croct\PsrCacheAdapter'
+      - '%croct.script.url%'
+
+  Croct\Plug\Symfony\EventListener\CroctScriptListener:
+    arguments:
+      - '@Croct\Plug\CroctScriptProvider'
+      - '/_croct/plug.js'
+    tags:
+      - { name: event_subscriber }

@@ -23,13 +23,13 @@
         "source": "https://github.com/croct-tech/plug-drupal"
     },
     "require": {
-        "php": "^8.3",
-        "croct/plug-php": "dev-initial-version as 1.0.0",
-        "croct/plug-symfony": "dev-initial-implementation as 1.0.0"
+        "php": "^8.2",
+        "croct/plug-php": "0.1.0",
+        "croct/plug-symfony": "0.1.0"
     },
     "require-dev": {
         "croct/coding-standard": "^0.4.5",
-        "drupal/core": "^11",
+        "drupal/core": "^10 || ^11",
         "ergebnis/composer-normalize": "^2.28",
         "phpstan/extension-installer": "^1.4",
         "phpstan/phpstan": "^2.2",
@@ -39,30 +39,6 @@
         "phpunit/phpunit": "^11.5",
         "squizlabs/php_codesniffer": "^4.0"
     },
-    "repositories": [
-        {
-            "type": "path",
-            "url": "/Users/marcospassos/PhpstormProjects/plug-php",
-            "options": {
-                "symlink": true
-            }
-        },
-        {
-            "type": "path",
-            "url": "/Users/marcospassos/PhpstormProjects/symfony-bundle-php",
-            "options": {
-                "symlink": true
-            }
-        },
-        {
-            "type": "vcs",
-            "url": "https://github.com/croct-tech/plug-php"
-        },
-        {
-            "type": "vcs",
-            "url": "https://github.com/croct-tech/symfony-bundle-php"
-        }
-    ],
     "prefer-stable": true,
     "autoload": {
         "psr-4": {

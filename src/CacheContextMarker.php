@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Drupal\croct;
 
 use Croct\Plug\Symfony\PersonalizationMarker;
-use Drupal\Core\Cache\CacheableResponseInterface;
+use Drupal\Core\Cache\CacheableResponseInterface as CacheableResponse;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -20,7 +20,7 @@ final class CacheContextMarker implements PersonalizationMarker
     {
         $response->setPrivate();
 
-        if ($response instanceof CacheableResponseInterface) {
+        if ($response instanceof CacheableResponse) {
             $response->getCacheableMetadata()->addCacheContexts(['session']);
         }
     }

@@ -13,7 +13,7 @@
   Bring dynamic, personalized content natively into your Drupal applications.
 </p>
 <div align="center">
-    <strong>📘 <a href="https://docs.croct.com/reference/sdk/drupal/installation">Quick start &rarr;</a></strong>
+    <strong>📘 <a href="https://docs.croct.com/reference/sdk/drupal/integration">Quick start &rarr;</a></strong>
 </div>
 <br/>
 <p align="center">
@@ -48,11 +48,11 @@ $settings['croct.app_id'] = '<APP_ID>';
 $settings['croct.api_key'] = '<API_KEY>';
 ```
 
-See our [quick start guide](https://docs.croct.com/reference/sdk/drupal/installation) for more details.
+See our [quick start guide](https://docs.croct.com/reference/sdk/drupal/integration) for more details.
 
 ## Documentation
 
-Visit our [official documentation](https://docs.croct.com/reference/sdk/drupal/installation).
+Visit our [official documentation](https://docs.croct.com/reference/sdk/drupal/integration).
 
 ## Support
 

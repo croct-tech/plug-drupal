@@ -4,23 +4,29 @@ declare(strict_types=1);
 
 namespace Drupal\croct;
 
+use Croct\Plug\CroctScript;
 use Croct\Plug\LoadMode;
 use Croct\Plug\Symfony\DependencyInjection\Compiler\StoryblokIntegrationPass;
 use Croct\Plug\Symfony\EventListener\CroctScriptSubscriber;
 use Drupal\Core\DependencyInjection\ContainerBuilder;
-use Drupal\Core\DependencyInjection\ServiceModifierInterface;
-use Drupal\Core\DependencyInjection\ServiceProviderInterface;
+use Drupal\Core\DependencyInjection\ServiceModifierInterface as ServiceModifier;
+use Drupal\Core\DependencyInjection\ServiceProviderInterface as ServiceProvider;
 use Drupal\Core\Site\Settings;
+use Symfony\Component\DependencyInjection\Definition;
 
 /**
  * Bridges the Croct credentials from settings.php into the container.
  */
-final class CroctServiceProvider implements ServiceProviderInterface, ServiceModifierInterface
+final class CroctServiceProvider implements ServiceProvider, ServiceModifier
 {
     public function register(ContainerBuilder $container): void
     {
         $container->setParameter('croct.app_id', self::setting('croct.app_id'));
         $container->setParameter('croct.api_key', self::setting('croct.api_key'));
+
+        // The SDK loader is served first-party from croct.script.url through CroctScriptProvider;
+        // default to the CDN loader, allowing an override (e.g. a pinned version) via settings.
+        $container->setParameter('croct.script.url', self::scriptUrl());
 
         // When the Storyblok Stories API service is present, the compiler pass decorates it with the
         // Croct decorator, exactly as the Symfony bundle does. No manual decoration is required.
@@ -30,10 +36,16 @@ final class CroctServiceProvider implements ServiceProviderInterface, ServiceMod
 
     public function alter(ContainerBuilder $container): void
     {
-        // The loader mode is an enum, which the YAML loader cannot express, so wire it here from the
-        // croct.script.mode setting (defaulting to defer, like the Symfony bundle).
+        // The loader mode is an enum, which neither the YAML loader can express nor Drupal's
+        // container dumper can serialise (it rejects objects in the dumped container). Wire it as an
+        // inline service built at runtime from the backed-enum value via LoadMode::from, defaulting
+        // to defer like the Symfony bundle.
         if ($container->hasDefinition(CroctScriptSubscriber::class)) {
-            $container->getDefinition(CroctScriptSubscriber::class)->setArgument(3, self::scriptMode());
+            $mode = (new Definition(LoadMode::class))
+                ->setFactory([LoadMode::class, 'from'])
+                ->setArguments([self::scriptMode()->value]);
+
+            $container->getDefinition(CroctScriptSubscriber::class)->setArgument(3, $mode);
         }
     }
 
@@ -44,6 +56,13 @@ final class CroctServiceProvider implements ServiceProviderInterface, ServiceMod
             'async' => LoadMode::ASYNC,
             default => LoadMode::DEFER,
         };
+    }
+
+    private static function scriptUrl(): string
+    {
+        $value = Settings::get('croct.script.url', CroctScript::DEFAULT_SCRIPT_URL);
+
+        return \is_string($value) && $value !== '' ? $value : CroctScript::DEFAULT_SCRIPT_URL;
     }
 
     private static function setting(string $name): string
