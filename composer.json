@@ -1,67 +1,76 @@
 {
-  "name": "croct/project-php",
-  "description": "A brief description about the project.",
-  "license": "proprietary",
-  "type": "library",
-  "keywords": [
-    "croct",
-    "related",
-    "keyword"
-  ],
-  "authors": [
-    {
-      "name": "Croct",
-      "email": "lib+project-php@croct.com",
-      "homepage": "https://croct.com"
+    "name": "croct/plug-drupal",
+    "description": "Drupal module to plug your Drupal site into Croct.",
+    "license": "MIT",
+    "type": "drupal-module",
+    "keywords": [
+        "croct",
+        "personalization",
+        "drupal",
+        "module",
+        "php"
+    ],
+    "authors": [
+        {
+            "name": "Croct",
+            "email": "lib+plug-drupal@croct.com",
+            "homepage": "https://croct.com"
+        }
+    ],
+    "homepage": "https://github.com/croct-tech/plug-drupal",
+    "support": {
+        "issues": "https://github.com/croct-tech/plug-drupal/issues",
+        "source": "https://github.com/croct-tech/plug-drupal"
+    },
+    "require": {
+        "php": "^8.2",
+        "croct/plug-php": "0.1.0",
+        "croct/plug-symfony": "0.1.0"
+    },
+    "require-dev": {
+        "croct/coding-standard": "^0.4.5",
+        "drupal/core": "^10 || ^11",
+        "ergebnis/composer-normalize": "^2.28",
+        "phpstan/extension-installer": "^1.4",
+        "phpstan/phpstan": "^2.2",
+        "phpstan/phpstan-deprecation-rules": "^2.0",
+        "phpstan/phpstan-phpunit": "^2.0",
+        "phpstan/phpstan-strict-rules": "^2.0",
+        "phpunit/phpunit": "^11.5",
+        "squizlabs/php_codesniffer": "^4.0"
+    },
+    "prefer-stable": true,
+    "autoload": {
+        "psr-4": {
+            "Drupal\\croct\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Drupal\\croct\\Tests\\": "tests/"
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true,
+            "drupal/core-composer-scaffold": false,
+            "drupal/core-project-message": false,
+            "ergebnis/composer-normalize": true,
+            "php-http/discovery": true,
+            "phpstan/extension-installer": true
+        },
+        "platform": {
+            "ext-gd": "2.1.0"
+        }
+    },
+    "scripts": {
+        "test": [
+            "composer validate",
+            "composer normalize --dry-run",
+            "mkdir -p .cache",
+            "phpcs",
+            "phpstan analyse --memory-limit=512M",
+            "phpunit"
+        ]
     }
-  ],
-  "homepage": "https://github.com/croct-tech/project-php",
-  "require": {
-    "php": "^8.0"
-  },
-  "require-dev": {
-    "croct/coding-standard": "^0.4",
-    "ergebnis/composer-normalize": "^2.28",
-    "phpstan/phpstan": "^1.8",
-    "phpstan/phpstan-deprecation-rules": "^1.0",
-    "phpstan/phpstan-phpunit": "^1.1",
-    "phpstan/phpstan-strict-rules": "^1.4",
-    "phpunit/phpunit": "^10.0",
-    "squizlabs/php_codesniffer": "^3.7"
-  },
-  "repositories": [
-    {
-      "type": "composer",
-      "url": "https://croct.repo.repman.io",
-      "secure-http": true
-    }
-  ],
-  "prefer-stable": true,
-  "autoload": {
-    "psr-4": {
-      "Croct\\Project\\": "src/"
-    }
-  },
-  "autoload-dev": {
-    "psr-4": {
-      "Croct\\Project\\Tests\\": "tests/"
-    }
-  },
-  "config": {
-    "allow-plugins": {
-      "dealerdirect/phpcodesniffer-composer-installer": true,
-      "ergebnis/composer-normalize": true,
-      "phpstan/extension-installer": false
-    }
-  },
-  "scripts": {
-    "test": [
-      "composer validate",
-      "composer normalize --dry-run",
-      "mkdir -p .cache",
-      "phpcs",
-      "phpstan analyse",
-      "phpunit"
-    ]
-  }
 }

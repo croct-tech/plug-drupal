@@ -1,0 +1,84 @@
+# Drupal service wiring for the Croct module.
+services:
+  # Adapters binding the framework-specific ports to Drupal services.
+  Drupal\croct\AccountIdentityResolver:
+    arguments:
+      - '@current_user'
+
+  Drupal\croct\CacheContextMarker: {}
+
+  # Follows Drupal's negotiated language instead of the raw Accept-Language header.
+  Drupal\croct\LanguageManagerLocaleResolver:
+    arguments:
+      - '@language_manager'
+
+  # Logger channel for the Plug, so SDK warnings surface in Drupal's logs.
+  logger.channel.croct:
+    parent: logger.channel_base
+    arguments: ['croct']
+
+  # Request-scoped Plug facade.
+  Croct\Plug\Symfony\CroctManager:
+    arguments:
+      - '@request_stack'
+      - '%croct.app_id%'
+      - '%croct.api_key%'
+      - null
+      - true
+      - null
+      - null
+      - true
+      - 'none'
+      - '@Drupal\croct\LanguageManagerLocaleResolver'
+      - null
+      - '@logger.channel.croct'
+      - 86400
+      - '@Drupal\croct\AccountIdentityResolver'
+    tags:
+      - { name: kernel.reset, method: reset }
+
+  # The Plug facade exposed as a service so the Storyblok decorator (and any consumer) can depend on
+  # it. The factory wraps it in a VaryingResponseObserver.
+  Croct\Plug\Plug:
+    factory: ['@Croct\Plug\Symfony\CroctManager', 'getPlug']
+
+  # Writes the session cookies and marks personalized responses so caches vary per visitor.
+  Croct\Plug\Symfony\EventListener\CroctResponseSubscriber:
+    arguments:
+      - '@Croct\Plug\Symfony\CroctManager'
+      - '@Drupal\croct\CacheContextMarker'
+    tags:
+      - { name: event_subscriber }
+
+  # Auto-injects the client-side bootstrap into HTML responses, pointing at the first-party path.
+  Croct\Plug\Symfony\EventListener\CroctScriptSubscriber:
+    arguments:
+      - '@Croct\Plug\Symfony\CroctManager'
+      - '/_croct/plug.js'
+      - 'head'
+    tags:
+      - { name: event_subscriber }
+
+  # First-party SDK loader: serve /_croct/plug.js from the site's own origin instead of the CDN, so
+  # the loader runs first-party (no third-party cookies). CroctScriptProvider proxies and caches the
+  # upstream loader; CroctScriptListener answers the request above the router, so it needs no route.
+  Nyholm\Psr7\Factory\Psr17Factory: {}
+
+  Drupal\croct\PsrCacheAdapter:
+    arguments:
+      - '@cache.default'
+      - '@datetime.time'
+
+  Croct\Plug\CroctScriptProvider:
+    arguments:
+      - '@http_client'
+      - '@Nyholm\Psr7\Factory\Psr17Factory'
+      - '@Drupal\croct\PsrCacheAdapter'
+      - '%croct.script.url%'
+
+  Croct\Plug\Symfony\EventListener\CroctScriptListener:
+    arguments:
+      - '@Croct\Plug\CroctScriptProvider'
+      - '/_croct/plug.js'
+    tags:
+      - { name: event_subscriber }

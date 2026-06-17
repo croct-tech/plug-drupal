@@ -1,0 +1,5 @@
+name: Croct
+type: module
+description: 'Integrates Croct with Drupal.'
+package: Croct
+core_version_requirement: ^10 || ^11
