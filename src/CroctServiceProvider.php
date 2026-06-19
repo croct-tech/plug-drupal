@@ -24,6 +24,10 @@ final class CroctServiceProvider implements ServiceProvider, ServiceModifier
         $container->setParameter('croct.app_id', self::setting('croct.app_id'));
         $container->setParameter('croct.api_key', self::setting('croct.api_key'));
 
+        // Forwards a debug flag to the browser SDK. Off by default; enable it in settings.php
+        // (where Drupal's other development toggles live) with $settings['croct.debug'] = true.
+        $container->setParameter('croct.debug', self::debug());
+
         // The SDK loader is served first-party from croct.script.url through CroctScriptProvider;
         // default to the CDN loader, allowing an override (e.g. a pinned version) via settings.
         $container->setParameter('croct.script.url', self::scriptUrl());
@@ -75,5 +79,10 @@ final class CroctServiceProvider implements ServiceProvider, ServiceModifier
     private static function storyblokEnabled(): bool
     {
         return Settings::get('croct.storyblok.enabled', true) !== false;
+    }
+
+    private static function debug(): bool
+    {
+        return Settings::get('croct.debug', false) === true;
     }
 }

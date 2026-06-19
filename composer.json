@@ -24,8 +24,8 @@
     },
     "require": {
         "php": "^8.2",
-        "croct/plug-php": "0.1.0",
-        "croct/plug-symfony": "0.1.0"
+        "croct/plug-php": "0.2.0",
+        "croct/plug-symfony": "0.2.0"
     },
     "require-dev": {
         "croct/coding-standard": "^0.4.5",
