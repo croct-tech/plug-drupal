@@ -37,6 +37,30 @@ final class CroctServiceProviderTest extends TestCase
         self::assertSame('', $container->getParameter('croct.api_key'));
     }
 
+    #[TestDox('Defaults debug to off.')]
+    public function testDefaultsDebugOff(): void
+    {
+        new Settings([]);
+
+        $container = new ContainerBuilder();
+
+        (new CroctServiceProvider())->register($container);
+
+        self::assertFalse($container->getParameter('croct.debug'));
+    }
+
+    #[TestDox('Enables debug through settings.')]
+    public function testEnablesDebugThroughSettings(): void
+    {
+        new Settings(['croct.debug' => true]);
+
+        $container = new ContainerBuilder();
+
+        (new CroctServiceProvider())->register($container);
+
+        self::assertTrue($container->getParameter('croct.debug'));
+    }
+
     #[TestDox('Defaults the loader URL to the CDN script.')]
     public function testDefaultsScriptUrl(): void
     {
